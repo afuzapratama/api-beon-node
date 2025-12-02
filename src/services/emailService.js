@@ -2,11 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const dns = require('dns').promises;
 
-const denyListPath = path.join(__dirname, '../../data/dennylist.txt');
+// Try to locate the file in multiple possible locations for Lambda/Netlify compatibility
+const possiblePaths = [
+    path.join(__dirname, '../../data/dennylist.txt'), // Local dev
+    path.join(process.cwd(), 'data/dennylist.txt'),   // Lambda root
+    path.join(__dirname, 'data/dennylist.txt')        // Bundled relative
+];
+
+let denyListPath = possiblePaths.find(p => fs.existsSync(p)) || possiblePaths[0];
 let denyList = new Set();
 
 function loadDenyList() {
     try {
+        console.log(`Attempting to load deny list from: ${denyListPath}`);
         const content = fs.readFileSync(denyListPath, 'utf-8');
         const domains = content.split('\n').map(d => d.trim().replace(/\r/g, '')).filter(d => d);
         denyList = new Set(domains);

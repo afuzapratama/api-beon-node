@@ -5,3 +5,6 @@ coverage/
 .vscode/
 *.mmdb
 
+
+# Local Netlify folder
+.netlify

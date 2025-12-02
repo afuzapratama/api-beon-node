@@ -1,17 +1,18 @@
-const whois = require('whois');
+const { checkDomain } = require('./domainService');
 const dns = require('dns').promises;
 const sslChecker = require('ssl-checker');
 
-function getWhois(domain) {
-    return new Promise((resolve, reject) => {
-        whois.lookup(domain, (err, data) => {
-            if (err) {
-                resolve({ error: err.message });
-            } else {
-                resolve(data);
-            }
-        });
-    });
+async function getWhois(domain) {
+    try {
+        const result = await checkDomain(domain);
+        if (result.status === 'success') {
+            return result.whois_response;
+        } else {
+            return `Error: ${result.message}`;
+        }
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
 }
 
 function parseWhoisAvailability(whoisData) {
