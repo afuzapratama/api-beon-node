@@ -108,17 +108,18 @@ async function getPostalJp(req, res) {
         code = code.replace(/[- 〒+]/g, '').replace(/\D/g, '');
 
         if (code.length !== 7) {
-            return res.status(422).json({ error: 'Postal code must be 7 digits' });
+            return res.json({ status: 'error', message: 'Postal code must be 7 digits' });
         }
 
         // Use MongoDB for Postal Code Lookup
         let result = await postalService.getPostalFromMongo(code);
 
         if (!result) {
-            return res.status(404).json({ error: 'Postal code not found' });
+            return res.json({ status: 'error', message: 'Postal code not found' });
         }
 
         res.json({
+            status: 'success',
             postalCode: result.postalCode,
             prefectureKana: result.prefectureKana,
             cityKana: result.cityKana,
@@ -206,6 +207,31 @@ async function validateCard(req, res) {
     }
 }
 
+// Advanced Card Validation
+async function validateCardAdvanced(req, res) {
+    try {
+        const cardNumber = req.query.card_number;
+        if (!cardNumber) {
+            return res.status(400).json({ 
+                status: "error",
+                valid: false,
+                message: "Parameter 'card_number' wajib diisi."
+            });
+        }
+
+        const result = await cardService.validateCardAdvanced(cardNumber);
+        res.json(result);
+
+    } catch (error) {
+        const status = error.status || 500;
+        res.status(status).json({
+            status: "error",
+            valid: false,
+            message: error.message
+        });
+    }
+}
+
 // BIN Lookup
 async function getBinLookup(req, res) {
     try {
@@ -252,6 +278,7 @@ module.exports = {
     analyzeDomain,
     checkCrawler,
     validateCard,
+    validateCardAdvanced,
     getBinLookup,
     checkIpQuality
 };

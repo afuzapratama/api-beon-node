@@ -26,6 +26,7 @@ router.get('/blockers', apiController.checkIpQuality);
 
 // Card
 router.get('/card/validate', apiController.validateCard);
+router.get('/card/validate-advanced', apiController.validateCardAdvanced);
 
 // BIN Lookup
 router.get('/bin', apiController.getBinLookup);
